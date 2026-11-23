@@ -1,0 +1,14 @@
+{
+  "name": "rasid-link-checker",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Rasid · راصد — AI suspicious link and website checker (competition prototype)",
+  "dependencies": {
+    "@anthropic-ai/sdk": "1.11.0",
+    "openai": "7.62.0"
+  },
+  "devDependencies": {
+    "@netlify/functions": "6.1.1"
+  }
+}

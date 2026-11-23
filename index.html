@@ -1,0 +1,289 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rasid · راصد — Suspicious Link Checker</title>
+<meta name="description" content="Rasid checks any public website address for phishing and fraud, with evidence in English and Arabic.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap">
+<style>
+  :root { --navy:#0f2a44; --teal:#0b6e77; --teal-l:#9fd8de; --bg:#f1f5f9; --card:#ffffff; --line:#d5dee8; --muted:#475569; --ink:#0f2a44;
+          --red:#b42318; --red-t:#fde2df; --red-d:#8f1d14; --amb:#b26b00; --amb-t:#fdecc8; --amb-d:#7a4100; --grn:#1e7b4f; --grn-t:#dcf3e6; --grn-d:#14532d; }
+  * { box-sizing: border-box; }
+  body { margin:0; font-family:'Inter','IBM Plex Sans Arabic',system-ui,sans-serif; color:var(--ink); background:var(--bg); line-height:1.5; }
+  .ar { font-family:'IBM Plex Sans Arabic','Inter',sans-serif; direction:rtl; text-align:right; }
+  header { background:var(--navy); color:#fff; padding:16px 20px; }
+  .wrap { max-width:1080px; margin:0 auto; }
+  .hrow { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:12px; }
+  .brand { display:flex; align-items:center; gap:12px; }
+  .brand b { font-size:22px; } .brand span { color:var(--teal-l); }
+  .sub { font-size:13px; color:#d5e2ec; }
+  .badge { font-size:12px; font-weight:600; padding:6px 12px; border-radius:999px; background:#1d3f5f; color:#e6f1f7; }
+  main { padding:28px 20px 48px; display:flex; flex-direction:column; gap:20px; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:16px; padding:22px; }
+  label.big { display:block; font-size:17px; font-weight:700; }
+  label.big .ar { display:block; font-size:15px; font-weight:600; color:#334155; text-align:left; direction:rtl; }
+  .inrow { display:flex; flex-wrap:wrap; gap:12px; margin-top:12px; }
+  input#url { flex:1 1 420px; min-width:0; min-height:52px; padding:12px 14px; font-size:16px; font-family:inherit; border:1.5px solid #b8c6d4; border-radius:12px; color:var(--ink); }
+  input#url:focus { outline:3px solid #9fd8de; border-color:var(--teal); }
+  button { font-family:inherit; cursor:pointer; }
+  .primary { min-height:52px; padding:12px 24px; font-size:16px; font-weight:700; color:#fff; background:var(--teal); border:none; border-radius:12px; }
+  .primary:disabled { opacity:.65; cursor:wait; }
+  .chips { display:flex; flex-wrap:wrap; gap:8px; margin-top:14px; align-items:center; }
+  .chips .lbl { font-size:13px; font-weight:700; color:var(--muted); margin-right:4px; }
+  .chip { min-height:40px; padding:6px 14px; font-size:13px; font-weight:600; color:var(--ink); background:#f1f5f9; border:1px solid #cbd5e1; border-radius:999px; }
+  .chip small { font-weight:500; color:var(--muted); }
+  .tip { margin-top:14px; font-size:13px; color:var(--muted); display:flex; flex-wrap:wrap; justify-content:space-between; gap:6px 20px; }
+  .err { margin-top:12px; padding:12px 14px; border-radius:12px; background:var(--red-t); color:var(--red-d); font-weight:600; font-size:14px; display:none; }
+  .steps { display:none; gap:8px; flex-direction:column; }
+  .step { display:flex; align-items:center; gap:10px; font-size:14px; padding:8px 12px; border-radius:10px; background:#f8fafc; border:1px solid #e2e8f0; color:var(--muted); }
+  .step.on { background:#e6f4f5; border-color:var(--teal); color:#084f56; font-weight:600; }
+  .step.done { background:#f0f9f4; border-color:#b7e1c8; color:var(--grn-d); }
+  .dot { width:10px; height:10px; border-radius:50%; background:currentColor; flex:none; }
+  #result { display:none; flex-direction:column; gap:20px; }
+  .verdict { border-width:2px; }
+  .vtop { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:12px; }
+  .pill { display:inline-flex; align-items:center; gap:10px; padding:8px 18px; border-radius:999px; font-size:22px; font-weight:800; }
+  .meta { display:flex; flex-wrap:wrap; gap:6px 18px; font-size:14px; color:#334155; }
+  .bar { height:10px; background:#e2e8f0; border-radius:999px; overflow:hidden; margin:14px 0; }
+  .bar > div { height:100%; border-radius:999px; transition:width .5s; }
+  .checked { font-size:14px; color:#334155; word-break:break-all; }
+  .two { display:grid; grid-template-columns:1fr 1fr; gap:6px 24px; }
+  @media (max-width:720px) { .two { grid-template-columns:1fr; } }
+  .summary { margin-top:12px; padding:14px 16px; border-radius:12px; font-size:15px; font-weight:600; }
+  .note { margin-top:10px; padding:10px 14px; border-radius:10px; background:#e6f4f5; color:#084f56; font-size:14px; }
+  h2 { margin:0; font-size:17px; display:flex; flex-wrap:wrap; align-items:center; gap:10px; }
+  h2 .ar { font-size:15px; color:var(--muted); font-weight:600; }
+  .src { font-size:11px; font-weight:800; letter-spacing:.06em; padding:3px 9px; border-radius:999px; text-transform:uppercase; }
+  .s-url { background:#e0e7ff; color:#312e81; } .s-threat_list { background:#fde2df; color:#8f1d14; } .s-page { background:#e6f4f5; color:#084f56; } .s-ai { background:#0f2a44; color:#fff; }
+  .row { display:grid; grid-template-columns:auto 1fr 1fr; gap:6px 16px; align-items:start; padding:10px 0; border-top:1px solid #e2e8f0; font-size:14px; }
+  @media (max-width:720px) { .row { grid-template-columns:auto 1fr; } .row .ar { grid-column:2; } }
+  .sev { font-size:11px; font-weight:800; padding:3px 8px; border-radius:999px; white-space:nowrap; }
+  .sev-bad { background:var(--red-t); color:var(--red-d); } .sev-warn { background:var(--amb-t); color:var(--amb-d); } .sev-good { background:var(--grn-t); color:var(--grn-d); } .sev-info { background:#e2e8f0; color:#334155; }
+  .idt { font-size:11px; color:var(--muted); font-weight:700; }
+  .empty { padding:10px 0; font-size:14px; color:var(--muted); border-top:1px solid #e2e8f0; }
+  .kv { display:grid; grid-template-columns:140px 1fr; gap:6px 12px; font-size:14px; margin-top:10px; }
+  .kv span:nth-child(odd) { color:var(--muted); } .kv span { word-break:break-word; }
+  .excerpt { margin-top:10px; padding:12px; border-radius:10px; background:#f8fafc; border:1px solid #e2e8f0; font-size:13px; color:#334155; max-height:160px; overflow:auto; white-space:pre-wrap; }
+  .notinsp { margin-top:12px; padding:14px 16px; border-radius:12px; background:#fff7e6; border:1px solid #f3d9a4; }
+  .notinsp b { font-size:16px; }
+  .cite { display:inline-flex; gap:4px; margin:4px 6px 0 0; font-size:11px; font-weight:700; padding:2px 8px; border-radius:999px; border:1px solid #cbd5e1; background:#f8fafc; }
+  details { font-size:14px; } summary { cursor:pointer; font-weight:700; }
+  pre { white-space:pre-wrap; word-break:break-word; font-size:12px; background:#0f2a44; color:#e6f1f7; padding:14px; border-radius:12px; max-height:420px; overflow:auto; }
+  footer { font-size:12px; color:var(--muted); max-width:1080px; margin:0 auto; padding:0 20px 40px; }
+  a { color:var(--teal); }
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap hrow">
+    <div class="brand">
+      <svg aria-hidden="true" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#9fd8de" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v6c0 4.5-3.4 8.2-8 9-4.6-.8-8-4.5-8-9V6l8-3z"/><circle cx="11" cy="11" r="3"/><path d="M13.2 13.2L16 16"/></svg>
+      <div><b>Rasid <span>· راصد</span></b><div class="sub">Suspicious link &amp; website checker · فاحص الروابط والمواقع المشبوهة</div></div>
+    </div>
+    <div class="badge">Competition prototype · نموذج للمسابقة</div>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="card" aria-labelledby="lbl">
+    <form id="f" novalidate>
+      <label class="big" id="lbl" for="url">Paste any website address to check it
+        <span class="ar" lang="ar">الصق عنوان أي موقع لفحصه</span></label>
+      <div class="inrow">
+        <input id="url" name="url" type="text" inputmode="url" autocomplete="off" spellcheck="false" placeholder="e.g. example.com or https://…">
+        <button class="primary" id="go" type="submit">Check · افحص</button>
+      </div>
+    </form>
+    <div class="chips" aria-label="Examples">
+      <span class="lbl">Try · جرّب:</span>
+      <button class="chip" type="button" data-url="https://www.rta.ae">rta.ae <small>real official site</small></button>
+      <button class="chip" type="button" data-url="https://example.com">example.com <small>real neutral site</small></button>
+      <button class="chip" type="button" data-sample="feed">Live phishing link <small>random entry from OpenPhish</small></button>
+      <button class="chip" type="button" data-url="http://rta-ae-fines.top/pay">rta-ae-fines.top <small>fictional, does not exist</small></button>
+    </div>
+    <div class="tip">
+      <span>Found a business in Google Maps or Search? Copy its website address and paste it here.</span>
+      <span class="ar" lang="ar">وجدت نشاطاً تجارياً في خرائط Google أو البحث؟ انسخ عنوان موقعه والصقه هنا.</span>
+    </div>
+    <div class="err" id="err" role="alert"></div>
+  </section>
+
+  <section class="card steps" id="steps" aria-live="polite">
+    <div class="step" data-s="0"><span class="dot"></span>Checking the address · فحص العنوان</div>
+    <div class="step" data-s="1"><span class="dot"></span>Matching threat lists · مطابقة قوائم التهديدات</div>
+    <div class="step" data-s="2"><span class="dot"></span>Opening the page in an isolated checker · فتح الصفحة في فاحص معزول</div>
+    <div class="step" data-s="3"><span class="dot"></span>Asking the AI about what was found · سؤال الذكاء الاصطناعي عن النتائج</div>
+  </section>
+
+  <div id="result" aria-live="polite"></div>
+</main>
+
+<footer>
+  <p>How it works: Rasid checks the address with its own rules, matches it against public threat lists (OpenPhish, URLhaus, Phishing Army), opens the page in an isolated server that only connects to public internet addresses and checks every redirect before following it, then sends the evidence to an AI model (via Netlify AI Gateway). Page content is treated as untrusted data; Rasid never submits forms or credentials. Before anything reaches the AI, Rasid removes query values, tokens, emails, long numbers and any username or password in the link. Do not paste private links that contain passwords or access tokens.</p>
+  <p class="ar" lang="ar">طريقة العمل: يفحص راصد العنوان بقواعده الخاصة، ويطابقه مع قوائم تهديدات عامة (OpenPhish وURLhaus وPhishing Army)، ثم يفتح الصفحة في خادم معزول لا يتصل إلا بعناوين الإنترنت العامة ويفحص كل تحويل قبل متابعته، ثم يرسل الأدلة إلى نموذج ذكاء اصطناعي (عبر Netlify AI Gateway). يُعامل محتوى الصفحة كبيانات غير موثوقة، ولا يرسل راصد أي نماذج أو بيانات دخول. قبل الإرسال للذكاء الاصطناعي يحذف راصد قيم الاستعلام والرموز والبريد والأرقام الطويلة وأي اسم مستخدم أو كلمة مرور في الرابط. لا تلصق روابط خاصة تحتوي على كلمات مرور أو رموز دخول.</p>
+</footer>
+
+<script>
+(function () {
+  const $ = (s) => document.querySelector(s);
+  function el(tag, attrs, ...kids) {
+    const n = document.createElement(tag);
+    if (attrs) for (const [k, v] of Object.entries(attrs)) {
+      if (v == null || v === false) continue;
+      if (k === "class") n.className = v; else if (k === "style") n.setAttribute("style", v); else n.setAttribute(k, v === true ? "" : v);
+    }
+    for (const k of kids.flat()) if (k != null && k !== false) n.append(k instanceof Node ? k : document.createTextNode(String(k)));
+    return n;
+  }
+  const ar = (t, tag = "div", cls = "") => el(tag, { class: ("ar " + cls).trim(), lang: "ar" }, t);
+  const V = {
+    dangerous: { en: "Dangerous", ar: "خطير", c: "var(--red)", t: "var(--red-t)", d: "var(--red-d)" },
+    suspicious: { en: "Suspicious", ar: "مشبوه", c: "var(--amb)", t: "var(--amb-t)", d: "var(--amb-d)" },
+    safe: { en: "No threats found", ar: "لم تُرصد تهديدات", c: "var(--grn)", t: "var(--grn-t)", d: "var(--grn-d)" },
+  };
+  const ADVICE = {
+    dangerous: ["Do not open this link or enter any details. Report it to IT.", "لا تفتح هذا الرابط ولا تُدخل أي بيانات. أبلغ قسم تقنية المعلومات."],
+    suspicious: ["Be careful. Check the sender and reach the organisation through its official app or website instead.", "كن حذراً. تحقّق من المرسل وادخل إلى الجهة عبر تطبيقها أو موقعها الرسمي بدلاً من الرابط."],
+    safe: ["No warning signs were found, but stay alert for unexpected payment or OTP requests.", "لم تُرصد مؤشرات خطر، لكن ابقَ حذراً من طلبات الدفع أو رمز التحقق غير المتوقعة."],
+  };
+  const DECIDED = {
+    threat_list: ["Decided by a confirmed threat-list match. The AI cannot override this.", "حُسم بتطابق مؤكد مع قائمة تهديدات، ولا يمكن للذكاء الاصطناعي تغييره."],
+    ai: ["The AI found more risk than the rule checks, so the stricter result is shown.", "رصد الذكاء الاصطناعي خطراً أكبر من القواعد، لذا تظهر النتيجة الأشد."],
+    rules: ["Decided by Rasid’s rule checks.", "حُسم بقواعد راصد."],
+    rules_and_ai: ["Rasid’s rule checks and the AI agree.", "قواعد راصد والذكاء الاصطناعي متفقان."],
+    ai_cleared_minor: ["The AI inspected the page and cleared minor address warnings.", "فحص الذكاء الاصطناعي الصفحة وأزال تحذيرات بسيطة في العنوان."],
+  };
+  const SRC = { url: ["URL", "الرابط"], threat_list: ["Threat list", "قائمة التهديدات"], page: ["Page", "الصفحة"] };
+  const SEV = { bad: "Risk", warn: "Warning", good: "Good", info: "Info" };
+
+  let stepTimer = null;
+  function showSteps(on) {
+    const box = $("#steps"); box.style.display = on ? "flex" : "none";
+    clearInterval(stepTimer);
+    const steps = [...box.querySelectorAll(".step")];
+    steps.forEach((s) => (s.className = "step"));
+    if (!on) return;
+    let i = 0; steps[0].classList.add("on");
+    stepTimer = setInterval(() => { if (i < steps.length - 1) { steps[i].className = "step done"; i++; steps[i].classList.add("on"); } }, 1800);
+  }
+
+  function findingRows(list) {
+    if (!list || !list.length) return [];
+    return list.map((f) => el("div", { class: "row" },
+      el("div", null, el("span", { class: "sev sev-" + f.sev }, SEV[f.sev] || f.sev), el("div", { class: "idt" }, f.id)),
+      el("div", null, f.en), ar(f.ar)));
+  }
+
+  function section(srcKey, titleEn, titleAr, ...body) {
+    return el("section", { class: "card" }, el("h2", null, el("span", { class: "src s-" + srcKey }, srcKey === "ai" ? "AI" : SRC[srcKey][0]), titleEn, el("span", { class: "ar", lang: "ar" }, titleAr)), ...body);
+  }
+
+  function render(j) {
+    const r = $("#result"); r.replaceChildren(); r.style.display = "flex";
+    const v = V[j.verdict.level];
+    const ai = j.ai || {};
+    // Verdict card
+    const vc = el("section", { class: "card verdict", style: `border-color:${v.c}` },
+      el("div", { class: "vtop" },
+        el("div", { class: "pill", style: `background:${v.t};color:${v.d}` }, `${v.en} · ${v.ar}`),
+        el("div", { class: "meta" },
+          el("span", null, el("b", null, `Rule score ${j.verdict.score}/100`), " · درجة الخطورة"),
+          el("span", null, `Checked in ${(j.elapsed_ms / 1000).toFixed(1)} s`))),
+      el("div", { class: "bar" }, el("div", { style: `width:${Math.max(3, j.verdict.score)}%;background:${v.c}` })),
+      el("div", { class: "checked" }, "Checked · تم فحص: ", el("b", null, j.input), j.sample ? el("span", null, `  (live sample from the ${j.sample.feed}, shown defanged so it can’t be clicked)`) : null),
+      el("div", { class: "two", style: "margin-top:8px;font-size:13px;color:#475569" }, el("div", null, (DECIDED[j.verdict.decided_by] || DECIDED.rules)[0]), ar((DECIDED[j.verdict.decided_by] || DECIDED.rules)[1])),
+      ai.status === "ok" && (ai.summary_en || ai.summary_ar) ? el("div", { class: "summary two", style: `background:${v.t};color:${v.d}` }, el("div", null, ai.summary_en), ar(ai.summary_ar)) : null,
+      el("div", { class: "summary two", style: "background:#f1f5f9;color:#0f2a44" }, el("div", null, ADVICE[j.verdict.level][0]), ar(ADVICE[j.verdict.level][1])),
+      ...(j.notes || []).map((n) => el("div", { class: "note two" }, el("div", null, n.en), ar(n.ar))));
+    r.append(vc);
+
+    // URL
+    r.append(section("url", "Findings from the address", "نتائج من العنوان",
+      el("div", { class: "kv" }, el("span", null, "Domain · النطاق"), el("span", null, j.url.domain), el("span", null, "Domain age · عمر النطاق"), el("span", null, j.url.rdap === "ok" ? "From the public registry (RDAP) · من السجل العام" : "Registry record unavailable · سجل غير متاح")),
+      ...(j.url.findings.length ? findingRows(j.url.findings) : [el("div", { class: "empty" }, "No warning signs in the address itself · لا مؤشرات خطر في العنوان نفسه")])));
+
+    // Threat lists
+    const feeds = j.threat_list.feeds.map((f) => el("span", null, `${f.name}: ${f.status === "ok" ? f.entries.toLocaleString() + " entries checked" : "unavailable right now"}`));
+    r.append(section("threat_list", "Threat-list matches", "التطابق مع قوائم التهديدات",
+      el("div", { style: "display:flex;flex-direction:column;gap:2px;font-size:13px;color:#475569;margin-top:8px" }, ...feeds),
+      ...(j.threat_list.matches.length ? findingRows(j.threat_list.matches) : [el("div", { class: "empty" }, "Not found in any threat list we checked. New scam sites are often not listed yet. · غير مُدرج في القوائم التي فحصناها، والمواقع الاحتيالية الجديدة غالباً لا تكون مُدرجة بعد.")])));
+
+    // Page
+    const p = j.page;
+    if (p.status === "inspected") {
+      r.append(section("page", "What Rasid saw on the page", "ما رآه راصد في الصفحة",
+        el("div", { class: "kv" },
+          el("span", null, "Final address"), el("span", null, p.final_url),
+          el("span", null, "HTTP status"), el("span", null, String(p.http_status)),
+          el("span", null, "Redirects"), el("span", null, p.redirects.length > 1 ? p.redirects.map((h) => `${h.url} (${h.status})`).join("  →  ") : "None"),
+          el("span", null, "Title"), el("span", null, p.title || "(none)"),
+          el("span", null, "Forms"), el("span", null, p.forms.length ? p.forms.map((f) => `sends to ${f.sends_to}: ${f.fields.join(", ") || "(no fields)"}${f.sensitive.length ? " — sensitive: " + f.sensitive.join(", ") : ""}`).join(" | ") : "No forms")),
+        p.text_excerpt ? el("div", { class: "excerpt", "aria-label": "Visible text excerpt" }, p.text_excerpt) : null,
+        ...findingRows(p.findings)));
+    } else {
+      r.append(section("page", "Page inspection", "فحص الصفحة",
+        el("div", { class: "notinsp" }, el("b", null, "Page could not be inspected · تعذّر فحص الصفحة"),
+          el("div", { class: "two", style: "margin-top:6px;font-size:14px" }, el("div", null, p.reason_en), ar(p.reason_ar)),
+          el("div", { class: "two", style: "margin-top:6px;font-size:13px;color:#475569" }, el("div", null, "The address findings and threat-list results above still apply."), ar("نتائج العنوان وقوائم التهديدات أعلاه ما زالت سارية."))),
+        p.redirects && p.redirects.length ? el("div", { class: "kv" }, el("span", null, "Redirects seen"), el("span", null, p.redirects.map((h) => `${h.url} (${h.status})`).join("  →  "))) : null));
+    }
+
+    // AI
+    const idx = {}; (ai.evidence_index || []).forEach((e) => (idx[e.id] = e.source));
+    let aiBody;
+    if (ai.status === "ok") {
+      const av = V[ai.verdict];
+      aiBody = [
+        el("div", { class: "meta", style: "margin-top:8px" },
+          el("span", null, el("b", null, ai.mode === "url_only" ? "URL analysis only · تحليل العنوان فقط" : "Page + URL analysis · تحليل الصفحة والعنوان")),
+          el("span", null, `Model: ${ai.model}`), el("span", null, `AI verdict: ${av.en} · ${av.ar} (${ai.confidence}% confident)`), el("span", null, `${(ai.ms / 1000).toFixed(1)} s`)),
+        ...(ai.reasons || []).map((x) => el("div", { class: "row" },
+          el("div", null, ...(x.evidence.length ? x.evidence.map((id) => el("span", { class: "cite", title: "Evidence " + id }, id, " · ", (SRC[idx[id]] || ["Evidence"])[0])) : [el("span", { class: "cite" }, "no citation")])),
+          el("div", null, x.en), ar(x.ar))),
+        ai.advice_en ? el("div", { class: "summary two", style: "background:#f1f5f9;color:#0f2a44" }, el("div", null, ai.advice_en), ar(ai.advice_ar)) : null,
+      ];
+    } else if (ai.status === "skipped") {
+      aiBody = [el("div", { class: "empty two" }, el("div", null, "This is a private or internal address, so nothing was sent to the AI."), ar("هذا عنوان خاص أو داخلي، لذلك لم يُرسل أي شيء للذكاء الاصطناعي."))];
+    } else {
+      aiBody = [el("div", { class: "notinsp two" }, el("div", null, "The AI is unavailable right now, so only the basic checks above were used."), ar("الذكاء الاصطناعي غير متاح الآن، لذلك استُخدمت الفحوص الأساسية أعلاه فقط."))];
+    }
+    r.append(section("ai", "AI analysis of the evidence", "تحليل الذكاء الاصطناعي للأدلة", ...aiBody));
+
+    // Disclosure
+    if (j.sent_to_ai) {
+      r.append(el("section", { class: "card" }, el("details", null,
+        el("summary", null, "What Rasid sent to the AI · ما أرسله راصد للذكاء الاصطناعي"),
+        el("p", { style: "font-size:13px;color:#475569" }, "Exactly this, after removing query values, tokens, emails and long numbers. Nothing else from your browser is sent."),
+        el("pre", null, JSON.stringify(j.sent_to_ai, null, 2)))));
+    }
+    r.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  async function run(payload) {
+    const err = $("#err"); err.style.display = "none";
+    const btn = $("#go"); btn.disabled = true; btn.textContent = "Checking… · جارٍ الفحص";
+    $("#result").style.display = "none"; showSteps(true);
+    try {
+      const res = await fetch("/api/check", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
+      const j = await res.json().catch(() => ({}));
+      if (res.status === 429) throw new Error("Too many checks in a minute. Please wait a moment and try again. · عدد كبير من الفحوص، انتظر قليلاً ثم حاول مجدداً.");
+      if (!res.ok || !j.verdict) throw new Error((j.error_en || "Something went wrong") + (j.error_ar ? " · " + j.error_ar : ""));
+      render(j);
+    } catch (e) {
+      err.textContent = e.message || String(e); err.style.display = "block";
+    } finally {
+      showSteps(false); btn.disabled = false; btn.textContent = "Check · افحص";
+    }
+  }
+
+  $("#f").addEventListener("submit", (e) => { e.preventDefault(); const u = $("#url").value.trim(); if (!u) { const err = $("#err"); err.textContent = "Paste a website address first · الصق عنوان موقع أولاً"; err.style.display = "block"; return; } run({ url: u }); });
+  document.querySelectorAll(".chip").forEach((c) => c.addEventListener("click", () => {
+    if (c.dataset.sample) { $("#url").value = ""; run({ sample: "feed" }); }
+    else { $("#url").value = c.dataset.url; run({ url: c.dataset.url }); }
+  }));
+})();
+</script>
+</body>
+</html>
