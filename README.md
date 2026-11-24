@@ -1,20 +1,16 @@
 # RASID | راصّد
 
-RASID checks links for signs of phishing and fraudulent UAE payment pages. The hosted checker works in Arabic and English.
+RASID is an iPhone app that checks links automatically when they open in Safari. The Safari extension shows the verdict and reason in Arabic or English.
 
-**Competition MVP · 25 November 2026**  
-[Open the live checker](https://rasid-link-checker.netlify.app/) · [Watch the 40-second Safari test](https://github.com/DTK16/rasid/blob/main/RASID-Safari-Link-Recheck.mp4) · [Download the buildable source](https://github.com/DTK16/rasid/blob/main/RASID-competition-source.zip)
+## Install the app and try automatic protection
 
-For a source build, download and extract **RASID-competition-source.zip** from this repository. Run the commands below from the extracted folder containing `package.json` and `ios/`. The live web checker can be tried immediately as a guest.
+**Current distribution:** download the source ZIP to a Mac and install the app using Xcode. This submission includes a source build and a recording. A public iPhone installation link is not included.
 
-## Try RASID as a judge
-
-1. Open the [live checker](https://rasid-link-checker.netlify.app/) on your phone or laptop. Select **English** if needed and choose **Continue as guest** (المتابعة كضيف). On a computer, choose **Continue** on the device screen. This walkthrough requires only a browser.
-2. On **Protect**, choose **Example: TAMM impersonation** (مثال تجريبي: انتحال منصة تم). RASID inspects a controlled sample that uses the TAMM name and requests card details on a different domain. Expect **Dangerous** and a reason identifying the domain mismatch.
-3. Choose **Official TAMM fines** (منصة تم الرسمية). Expect **Safe** for the official domain. Both examples run a check when tapped.
-4. For a separate map example, open the [server globe for example.com](https://rasid-link-checker.netlify.app/server-map.html?host=example.com&lang=en). Drag to rotate and select **Center on server** to return to the estimated hosting location. The fictional TAMM sample has no public IP or coordinates.
-
-For automatic checks while browsing Safari, use the native iPhone installation instructions below. Guest access covers the checker. The hosted administration tools require the appropriate account.
+1. **Install RASID.** Download and extract the [competition source ZIP](https://github.com/DTK16/rasid/blob/main/RASID-competition-source.zip). Open `rasid/ios/Rasid.xcodeproj` in Xcode, select the **Rasid** scheme and choose your connected iPhone or an iPhone simulator. Press **Run**. For a physical phone, see [device signing](#build-and-run-the-iphone-project) below.
+2. **Turn protection on.** Open the installed RASID app, choose **Continue as guest**, and switch on **Check links in Safari** in RASID Settings.
+3. **Enable the Safari extension.** In iPhone **Settings → Apps → Safari → Extensions → RASID**, enable the extension and allow access to the websites you want it to check. Open the [extension status page](https://rasid-link-checker.netlify.app/safari-check.html?lang=en) in Safari to confirm protection is on.
+4. **Open a link directly in Safari.** Try the [Loro Piana UAE storefront](https://ae.loropiana.com/en/). Watch for RASID’s result over the page. If a messaging app opens its own browser, choose **Open in Safari**. RASID starts the check automatically when Safari opens the destination.
+5. **See a suspicious result.** The [40-second simulator recording](https://github.com/DTK16/rasid/blob/main/RASID-Safari-Link-Recheck.mp4) shows both the Loro Piana result and a SwitchROMs warning. At the warning, a judge can see the reason, listen to it, and close the page.
 
 ## Problem and solution
 
@@ -43,7 +39,7 @@ The recording shows a repeat visit to Loro Piana. During the first visit, its co
 
 | Component | How and why it is used |
 | --- | --- |
-| Browser interface | HTML, CSS and JavaScript provide a bilingual interface that judges can open directly. |
+| Browser interface | HTML, CSS and JavaScript provide the bilingual checker interface. |
 | Detection backend | TypeScript Netlify Functions implement the checker. The server can inspect public HTTP(S) destinations without opening a suspect page on the user's device. It limits redirects, rejects private destinations and inspects returned HTML without executing page scripts. |
 | Detection rules and optional AI | URL patterns, threat-list matches, page observations and domain age supply evidence. The backend can ask Claude to interpret the evidence, with an OpenAI fallback when configured. Rules can return a verdict when model access is unavailable. Look at the AI status in a full scan to see whether a model actually ran. |
 | iPhone and Safari | SwiftUI hosts the app. A Safari Web Extension uses JavaScript and native messaging to read the protection preference. The extension can warn, block, or offer a one-time continuation for a suspicious result. The Safari card-form guard recognizes standard card-number and security-code fields and checks for an insecure page or submission destination without reading their values. |
@@ -56,7 +52,7 @@ The recording shows a repeat visit to Loro Piana. During the first visit, its co
 - A safe verdict means the checks found insufficient evidence of a threat. A checkout can use HTTPS and still be fraudulent. RASID cannot validate a seller or reverse a payment.
 - This submission covers the web checker and Safari extension. For a link opened in an app’s own embedded browser, use its Open in Safari action to enter the supported protection path. The UAE PASS profile flow and automatic police reporting in this build are demonstrations.
 
-## Build and run the web project
+## Developer setup for the web service
 
 Use Node.js 22.12+ and npm. From the repository root, in a macOS or Linux shell:
 
@@ -86,7 +82,7 @@ A completed full check returns a verdict and evidence sections. The result ident
 2. Continue as a guest and enable protection in RASID. In iPhone **Settings → Apps → Safari → Extensions**, enable RASID and grant it access to the sites you intend to test. Older iOS versions put Safari directly under Settings.
 3. Open a harmless public URL in Safari. Check that the extension responds with protection enabled. Disable protection in the app and repeat to compare.
 4. For a quick diagnostic, open the [extension status page](https://rasid-link-checker.netlify.app/safari-check.html?lang=en) in Safari on the device. It reports whether the extension responds on that page.
-5. A physical-device build needs signing configured for the app and extension under **Signing & Capabilities**. Teams using different identifiers must keep the extension identifier and shared App Group consistent in the entitlements and Swift code. The hosted web checker is the simplest free option for judges without a Mac.
+5. A physical-device build needs signing configured for the app and extension under **Signing & Capabilities**. Teams using different identifiers must keep the extension identifier and shared App Group consistent in the entitlements and Swift code. The simulator option runs the same app and extension on a Mac.
 
 ## Repository map
 
