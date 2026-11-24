@@ -12,6 +12,14 @@ RASID is an iPhone app that checks links automatically when they open in Safari.
 4. **Open a link directly in Safari.** Try the [Loro Piana UAE storefront](https://ae.loropiana.com/en/). Watch for RASID’s result over the page. If a messaging app opens its own browser, choose **Open in Safari**. RASID starts the check automatically when Safari opens the destination.
 5. **See a suspicious result.** The [40-second simulator recording](https://github.com/DTK16/rasid/blob/main/RASID-Safari-Link-Recheck.mp4) shows both the Loro Piana result and a SwitchROMs warning. At the warning, a judge can see the reason, listen to it, and close the page.
 
+## Build with your AI assistant on a Mac
+
+With access to this private repository, download the [competition source ZIP](https://github.com/DTK16/rasid/blob/main/RASID-competition-source.zip). Alternatively, ask the team to send you the same ZIP directly. Extract it, open the extracted project folder in a local coding assistant that can run terminal commands, and give it this prompt. The simulator route uses the source directly and does not require TestFlight.
+
+> Build and launch the RASID iPhone app from this extracted source on my Mac. Locate `ios/Rasid.xcodeproj`, confirm Xcode is available, and list the iPhone simulator destinations for the `Rasid` scheme. Choose an installed compatible iPhone simulator, boot it if needed, build the Debug app for that destination, install it and launch it. Report which simulator you used and whether the app opened. Use the hosted backend already configured in the app. Guide me through Continue as guest, turning on Check links in Safari, and enabling the RASID extension in the simulator’s Safari settings. Leave website permissions to me. Then open the extension status page in simulator Safari and verify it reports active. Open the Loro Piana UAE link from this guide directly in Safari and tell me the verdict you actually observe. If a step fails, show the exact error. Keep the source unchanged.
+
+For a physical iPhone, connect it to the Mac, choose it as the Xcode destination and follow the device-signing instructions below. The simulator is the simplest route for reviewing the automatic checker.
+
 ## Problem and solution
 
 A video, search result, or message can send someone to a convincing imitation of a bank or payment page. A familiar logo gives the user little evidence about who controls the destination. RASID checks the actual address, follows redirects where inspection is possible, and explains the warning signs in English or Arabic.
